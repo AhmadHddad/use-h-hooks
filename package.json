@@ -39,6 +39,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
+  "repository": "https://github.com/AhmadHddad/use-h-hooks",
   "name": "use-h-hooks",
   "author": "AhmadHddad",
   "module": "dist/use-h-hooks.esm.js",
