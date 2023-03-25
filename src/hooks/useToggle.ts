@@ -9,7 +9,7 @@ export default function useToggle(
     (nextVal?: boolean) => {
       setVal(prev => (typeof nextVal === 'boolean' ? nextVal : !prev));
     },
-    [val]
+    []
   );
 
   return [val, updateVal];
