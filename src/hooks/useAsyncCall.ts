@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, Key } from 'react';
+import { useEffect, useState, useCallback, Key, useRef } from 'react';
 
 export type AsyncFunc<T> = (...params: any[]) => Promise<T>;
 export type onError = (error: any) => void;
@@ -44,16 +44,18 @@ export default function useAsyncCall<T extends Value>({
   errorHandler,
   throwError = false,
 }: UseAsyncCallParam<T>): UseAsyncCallReturnType<T> {
+  const throwErrorRef = useRef(throwError);
   const [state, setState] = useState<T | undefined>(defaultValue);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
 
   const mainCall = useCallback(
-    async function() {
+    async function () {
       setIsLoading(true);
       try {
         //@ts-ignore
+        // eslint-disable-next-line prefer-rest-params
         const val = await asyncFunc(...arguments);
         setIsError(false);
         if (val) setState(val);
@@ -68,10 +70,10 @@ export default function useAsyncCall<T extends Value>({
         if (errorHandler) errorHandler(error);
 
         //@ts-ignore
-        if (throwError) throw new Error(error);
+        if (throwErrorRef.current) throw new Error(error);
       }
     },
-    [asyncFunc, onError]
+    [asyncFunc, errorHandler, onError]
   );
 
   useEffect(() => {
@@ -87,5 +89,16 @@ export default function useAsyncCall<T extends Value>({
     };
   }, [asyncFunc, onError, mainCall, runOnMount]);
 
-  return { run: mainCall, val: state, isLoading, isError, isSuccess };
+  const onRun = useCallback(
+    function () {
+      throwErrorRef.current = true;
+
+      //@ts-ignore
+      // eslint-disable-next-line prefer-rest-params
+      return mainCall(...arguments);
+    },
+    [mainCall]
+  );
+
+  return { run: onRun, val: state, isLoading, isError, isSuccess };
 }
