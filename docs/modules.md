@@ -4,16 +4,29 @@
 
 ## Table of contents
 
+### References
+
+- [useMountEffect](modules.md#usemounteffect)
+
 ### Functions
 
 - [useAsyncCall](modules.md#useasynccall)
 - [useEffectOnce](modules.md#useeffectonce)
 - [useFirstMountState](modules.md#usefirstmountstate)
+- [useIsMounted](modules.md#useismounted)
 - [useLongPress](modules.md#uselongpress)
 - [useMap](modules.md#usemap)
+- [useMountedState](modules.md#usemountedstate)
 - [useObjectState](modules.md#useobjectstate)
+- [useToggle](modules.md#usetoggle)
 - [useUpdate](modules.md#useupdate)
 - [useUpdateEffect](modules.md#useupdateeffect)
+
+## References
+
+### useMountEffect
+
+Renames and re-exports [useEffectOnce](modules.md#useeffectonce)
 
 ## Functions
 
@@ -30,7 +43,7 @@ it will run at first mount unless you define otherwise.
 
 | Name | Type |
 | :------ | :------ |
-| `T` | extends `Value` |
+| `T` | extends `FunctionReturningPromise` |
 
 #### Parameters
 
@@ -44,7 +57,7 @@ it will run at first mount unless you define otherwise.
 
 #### Defined in
 
-src/hooks/useAsyncCall.ts:39
+[src/hooks/useAsyncCall.ts:43](https://github.com/AhmadHddad/use-h-hooks/blob/9252539/src/hooks/useAsyncCall.ts#L43)
 
 ___
 
@@ -68,7 +81,7 @@ will call the passed effect once per page mount.
 
 #### Defined in
 
-src/hooks/useEffectOnce.ts:7
+[src/hooks/useEffectOnce.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/9252539/src/hooks/useEffectOnce.ts#L7)
 
 ___
 
@@ -86,7 +99,31 @@ React state hook that returns true if component is just mounted.
 
 #### Defined in
 
-src/hooks/useFirstMountState.ts:6
+[src/hooks/useFirstMountState.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/9252539/src/hooks/useFirstMountState.ts#L6)
+
+___
+
+### useIsMounted
+
+▸ **useIsMounted**(): () => `boolean`
+
+**`Description`**
+
+will return a callback that returns true if the component is mounted
+
+#### Returns
+
+`fn`
+
+▸ (): `boolean`
+
+##### Returns
+
+`boolean`
+
+#### Defined in
+
+[src/hooks/useIsMounted.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/9252539/src/hooks/useIsMounted.ts#L6)
 
 ___
 
@@ -119,7 +156,7 @@ React sensor hook that fires a callback after long pressing.
 
 #### Defined in
 
-src/hooks/useLongPress.ts:24
+[src/hooks/useLongPress.ts:24](https://github.com/AhmadHddad/use-h-hooks/blob/9252539/src/hooks/useLongPress.ts#L24)
 
 ___
 
@@ -176,7 +213,37 @@ const Demo = () => {
 
 #### Defined in
 
-src/hooks/useMap.ts:41
+[src/hooks/useMap.ts:42](https://github.com/AhmadHddad/use-h-hooks/blob/9252539/src/hooks/useMap.ts#L42)
+
+___
+
+### useMountedState
+
+▸ **useMountedState**<`S`\>(`initialState?`): [`S`, `Dispatch`<`SetStateAction`<`S`\>\>]
+
+**`Description`**
+
+will set the state only when the component is mounted.
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `S` | `undefined` |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `initialState?` | `S` |
+
+#### Returns
+
+[`S`, `Dispatch`<`SetStateAction`<`S`\>\>]
+
+#### Defined in
+
+[src/hooks/useMountedState.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/9252539/src/hooks/useMountedState.ts#L7)
 
 ___
 
@@ -206,7 +273,31 @@ React hook for state as object, when u call setState({a:2}) => will only update 
 
 #### Defined in
 
-src/hooks/useObjectState.ts:6
+[src/hooks/useObjectState.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/9252539/src/hooks/useObjectState.ts#L7)
+
+___
+
+### useToggle
+
+▸ **useToggle**(`initialValue?`): [`boolean`, (`nextVal?`: `boolean`) => `void`]
+
+**`Description`**
+
+useState but with toggle flags, when update is called will "toggle" the value
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `initialValue?` | `boolean` |
+
+#### Returns
+
+[`boolean`, (`nextVal?`: `boolean`) => `void`]
+
+#### Defined in
+
+[src/hooks/useToggle.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/9252539/src/hooks/useToggle.ts#L7)
 
 ___
 
@@ -230,7 +321,7 @@ React hook that when called will trigger rerender or update.
 
 #### Defined in
 
-src/hooks/useUpdate.ts:9
+[src/hooks/useUpdate.ts:9](https://github.com/AhmadHddad/use-h-hooks/blob/9252539/src/hooks/useUpdate.ts#L9)
 
 ___
 
