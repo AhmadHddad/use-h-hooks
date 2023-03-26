@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
+import useMountedState from './useMountedState';
 
 export interface StableActions<T extends object> {
   set: <K extends keyof T>(key: K, value: T[K]) => void;
@@ -41,7 +42,7 @@ const Demo = () => {
 const useMap = <T extends object = any>(
   initialMap: T = {} as T
 ): [T, Actions<T>] => {
-  const [map, set] = useState<T>(initialMap);
+  const [map, set] = useMountedState<T>(initialMap);
 
   const stableActions = useMemo<StableActions<T>>(
     () => ({

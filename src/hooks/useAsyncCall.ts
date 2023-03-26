@@ -1,11 +1,15 @@
-import { useEffect, useState, useCallback, Key, useRef } from 'react';
+import { useEffect, useCallback, Key, useRef } from 'react';
+import useMountedState from './useMountedState';
+export type FunctionReturningPromise = (...args: any[]) => Promise<any>;
+export type PromiseType<P extends Promise<any>> = P extends Promise<infer T>
+  ? T
+  : never;
 
-export type AsyncFunc<T> = (...params: any[]) => Promise<T>;
 export type onError = (error: any) => void;
 
 export type UseAsyncCallParam<T> = {
-  asyncFunc: AsyncFunc<T | undefined | void>;
-  defaultValue?: T;
+  asyncFunc: T;
+  defaultValue?: ReturnType<T | any>;
   throwError?: boolean;
   runOnMount?: boolean;
   runNow?: boolean;
@@ -13,12 +17,12 @@ export type UseAsyncCallParam<T> = {
   errorHandler?: (e: any) => void;
 };
 
-export type UseAsyncCallReturnType<T> = {
-  run: (...params: any[]) => Promise<T | undefined | void>;
+export type UseAsyncCallReturnType<T extends (...args: any) => any> = {
+  run: T;
   isLoading: boolean;
   isError: boolean;
   isSuccess: boolean;
-  val?: T;
+  val?: ReturnType<T>;
 };
 
 export type Value =
@@ -36,7 +40,7 @@ export type Value =
  *@description React hook for calling async functions calls will return the state isLoading, isError
  * it will run at first mount unless you define otherwise.
  */
-export default function useAsyncCall<T extends Value>({
+export default function useAsyncCall<T extends FunctionReturningPromise>({
   asyncFunc,
   defaultValue,
   runOnMount = true,
@@ -45,20 +49,21 @@ export default function useAsyncCall<T extends Value>({
   throwError = false,
 }: UseAsyncCallParam<T>): UseAsyncCallReturnType<T> {
   const throwErrorRef = useRef(throwError);
-  const [state, setState] = useState<T | undefined>(defaultValue);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [state, setState] = useMountedState<ReturnType<T> | undefined>(defaultValue);
+  const [isLoading, setIsLoading] = useMountedState(false);
+  const [isSuccess, setIsSuccess] = useMountedState(false);
+  const [isError, setIsError] = useMountedState(false);
 
   const mainCall = useCallback(
-    async function () {
+    async function() {
       setIsLoading(true);
       try {
         //@ts-ignore
         // eslint-disable-next-line prefer-rest-params
         const val = await asyncFunc(...arguments);
-        setIsError(false);
         if (val) setState(val);
+
+        setIsError(false);
         setIsSuccess(true);
         setIsLoading(false);
         return val;
@@ -89,8 +94,8 @@ export default function useAsyncCall<T extends Value>({
     };
   }, [asyncFunc, onError, mainCall, runOnMount]);
 
-  const onRun = useCallback(
-    function () {
+  const onRun: any = useCallback(
+    function() {
       throwErrorRef.current = true;
 
       //@ts-ignore

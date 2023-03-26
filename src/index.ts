@@ -7,3 +7,5 @@ export { default as useLongPress } from './hooks/useLongPress';
 export { default as useEffectOnce } from './hooks/useEffectOnce';
 export { default as useFirstMountState } from './hooks/useFirstMountState';
 export { default as useToggle } from './hooks/useToggle';
+export { default as useIsMounted } from './hooks/useIsMounted';
+export { default as useMountedState } from './hooks/useMountedState';

@@ -1,4 +1,5 @@
 import React, { SetStateAction, Dispatch } from 'react';
+import useMountedState from './useMountedState';
 
 /**
  *@description React hook for state as object, when u call setState({a:2}) => will only update the key a with the value 2
@@ -6,7 +7,7 @@ import React, { SetStateAction, Dispatch } from 'react';
 export default function useObjectState<S = {}>(
   initialState: S
 ): [S, Dispatch<SetStateAction<S>>] {
-  const [state, setState] = React.useState(initialState || {});
+  const [state, setState] = useMountedState(initialState || {});
 
   const onSetState = React.useCallback(
     //@ts-ignore
