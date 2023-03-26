@@ -5,6 +5,7 @@ export { default as useUpdateEffect } from './hooks/useUpdateEffect';
 export { default as useUpdate } from './hooks/useUpdate';
 export { default as useLongPress } from './hooks/useLongPress';
 export { default as useEffectOnce } from './hooks/useEffectOnce';
+export { default as useMountEffect } from './hooks/useEffectOnce';
 export { default as useFirstMountState } from './hooks/useFirstMountState';
 export { default as useToggle } from './hooks/useToggle';
 export { default as useIsMounted } from './hooks/useIsMounted';
