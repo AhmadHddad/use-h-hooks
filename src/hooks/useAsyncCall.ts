@@ -1,9 +1,7 @@
-import { useEffect, useCallback, Key, useRef } from 'react';
-import useMountedState from './useMountedState';
+import { useEffect, useCallback, Key, useRef } from "react";
+import useMountedState from "./useMountedState";
 export type FunctionReturningPromise = (...args: any[]) => Promise<any>;
-export type PromiseType<P extends Promise<any>> = P extends Promise<infer T>
-  ? T
-  : never;
+export type PromiseType<P extends Promise<any>> = P extends Promise<infer T> ? T : never;
 
 export type onError = (error: any) => void;
 
@@ -13,6 +11,7 @@ export type UseAsyncCallParam<T> = {
   throwError?: boolean;
   runOnMount?: boolean;
   runNow?: boolean;
+  onSuccess?: (param: ReturnType<T>) => void;
   onError?: onError;
   errorHandler?: (e: any) => void;
 };
@@ -45,6 +44,7 @@ export default function useAsyncCall<T extends FunctionReturningPromise>({
   defaultValue,
   runOnMount = true,
   onError,
+  onSuccess,
   errorHandler,
   throwError = false,
 }: UseAsyncCallParam<T>): UseAsyncCallReturnType<T> {
@@ -55,14 +55,14 @@ export default function useAsyncCall<T extends FunctionReturningPromise>({
   const [isError, setIsError] = useMountedState(false);
 
   const mainCall = useCallback(
-    async function() {
+    async function () {
       setIsLoading(true);
       try {
         //@ts-ignore
         // eslint-disable-next-line prefer-rest-params
         const val = await asyncFunc(...arguments);
         if (val) setState(val);
-
+        onSuccess?.(val)
         setIsError(false);
         setIsSuccess(true);
         setIsLoading(false);
@@ -95,7 +95,7 @@ export default function useAsyncCall<T extends FunctionReturningPromise>({
   }, [asyncFunc, onError, mainCall, runOnMount]);
 
   const onRun: any = useCallback(
-    function() {
+    function () {
       throwErrorRef.current = true;
 
       //@ts-ignore
