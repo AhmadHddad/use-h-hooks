@@ -100,6 +100,9 @@ export default function useAsyncCall<T extends FunctionReturningPromise>({
 
   const onRun: any = useCallback(
     function() {
+      // this will make the run function behave much like the normal behavior, because when you call an async funciton
+      // it should throw when error.
+      // i don't we might add a way to override it in the future.
       throwErrorRef.current = true;
 
       //@ts-ignore
