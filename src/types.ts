@@ -1,16 +1,61 @@
-/**
- * Recursively unwraps the "awaited type" of a type. 
-   Non-promise "thenables" should resolve to `never`. 
-   This emulates the behavior of `await`.
- */
-export type PAwaited<T> = T extends null | undefined
-  ? T // special case for `null | undefined`
-  : // when not in `--strictNullChecks` mode
-  T extends object & { then(onfulfilled: infer F, ...args: infer _): any }
-  ? // `await` only unwraps object types with a callable `then`.
-    // Non-object types are not unwrapped
-    F extends (value: infer V, ...args: infer _) => any
-    ? // if the argument to `then` is callable, extracts the first argument
-      Awaited<V> // recursively unwrap the value
-    : never // the argument to `then` was not callable
-  : T; // non-object or non-thenable
+import { NoopFn, Nullable, PAwaited } from 'hd-utils';
+
+export interface StableActions<T extends object> {
+  set: <K extends keyof T>(key: K, value: T[K]) => void;
+  setAll: (newMap: T) => void;
+  remove: <K extends keyof T>(key: K) => void;
+  reset: () => void;
+}
+
+export interface Actions<T extends object> extends StableActions<T> {
+  get: <K extends keyof T>(key: K) => T[K];
+}
+
+export type UseIntersectionObserverParams = {
+  element: Nullable<Element>;
+  onInView?: (entry: IntersectionObserverEntry) => void;
+  fallbackInView?: boolean;
+  stop?: boolean;
+} & IntersectionObserverInit;
+export type UseIntersectionObserverReturn = { isInView: boolean };
+
+export type onError = (error: any) => void;
+
+export type UseAsyncCallParam<T extends (...args: any) => any = any> = {
+  asyncFunc: T;
+  defaultValue?: PAwaited<ReturnType<T>>;
+  throwError?: boolean;
+  runOnMount?: boolean;
+  runNow?: boolean;
+  onSuccess?: (param: PAwaited<ReturnType<T>>) => void;
+  onError?: onError;
+  errorHandler?: (e: any) => void;
+};
+
+export type UseAsyncCallReturnType<T extends (...args: any) => any> = {
+  run: T;
+  isLoading: boolean;
+  isError: boolean;
+  isSuccess: boolean;
+  val: PAwaited<ReturnType<T>> | undefined;
+};
+
+export type DebounceSettings = {
+  leading?: boolean;
+  trailing?: boolean;
+  maxWait?: number;
+} & { wait?: number };
+
+export type UseInfiniteScrollParams = {
+  isLoading?: boolean;
+  disabled?: boolean;
+  debounceSettings?: DebounceSettings & { wait?: number };
+  hasMore: boolean;
+  isError?: boolean;
+  onLoadMore: NoopFn;
+} & UseIntersectionObserverParams;
+
+
+export type UseInfiniteScrollReturn = {
+  shouldShowLoader: boolean;
+};
