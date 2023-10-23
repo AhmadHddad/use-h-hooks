@@ -24,17 +24,6 @@ export type UseAsyncCallReturnType<T extends (...args: any) => any> = {
   val: PAwaited<ReturnType<T>> | undefined;
 };
 
-export type Value =
-  | boolean
-  | string
-  | number
-  | React.ReactNode
-  | Key
-  | object
-  | undefined
-  | null
-  | [];
-
 /**
  *@description React hook for calling async functions calls will return the state isLoading, isError
  * it will run at first mount unless you define otherwise.
