@@ -53,8 +53,7 @@ export type UseInfiniteScrollParams = {
   hasMore: boolean;
   isError?: boolean;
   onLoadMore: NoopFn;
-} & UseIntersectionObserverParams;
-
+} & Pick<UseIntersectionObserverParams, 'element' | 'fallbackInView'>;
 
 export type UseInfiniteScrollReturn = {
   shouldShowLoader: boolean;

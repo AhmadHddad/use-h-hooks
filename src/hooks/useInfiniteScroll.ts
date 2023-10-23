@@ -25,6 +25,7 @@ export default function useInfiniteScroll({
   element,
   disabled,
   hasMore,
+  fallbackInView,
   onLoadMore,
   isError,
   debounceSettings,
@@ -37,6 +38,7 @@ export default function useInfiniteScroll({
   );
   const { isInView } = useIntersectionObserver({
     element,
+    fallbackInView,
     stop: isLoading || disabled || !hasMore || isError,
   });
 
