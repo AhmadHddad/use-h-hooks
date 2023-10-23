@@ -1,18 +1,12 @@
 import { useMemo } from 'react';
-import { debounce, isDev, isFunction } from 'hd-utils';
+import { debounce, isDev, isFunction, DebounceOptions } from 'hd-utils';
 import useLatest from './useLatest';
 import useUnmount from './useUnmount';
-
-export type DebounceOptions = {
-  leading?: boolean;
-  trailing?: boolean;
-  maxWait?: number;
-};
 
 /**
  * @description React hooks that debounce function
  */
-export default function useDebounce<T extends (...args: any) => any>(
+export default function useDebounce<T extends (...args: any[]) => any>(
   fn: T,
   wait?: number,
   options?: DebounceOptions

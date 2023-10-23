@@ -1,28 +1,7 @@
-import { useEffect, useCallback, Key, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import useMountedState from './useMountedState';
-import { PAwaited } from '../types';
-export type FunctionReturningPromise = (...args: any[]) => Promise<any>;
-export type onError = (error: any) => void;
-export type Nullable<T extends any> = T | null;
-
-export type UseAsyncCallParam<T extends (...args: any) => any = any> = {
-  asyncFunc: T;
-  defaultValue?: PAwaited<ReturnType<T>>;
-  throwError?: boolean;
-  runOnMount?: boolean;
-  runNow?: boolean;
-  onSuccess?: (param: PAwaited<ReturnType<T>>) => void;
-  onError?: onError;
-  errorHandler?: (e: any) => void;
-};
-
-export type UseAsyncCallReturnType<T extends (...args: any) => any> = {
-  run: T;
-  isLoading: boolean;
-  isError: boolean;
-  isSuccess: boolean;
-  val: PAwaited<ReturnType<T>> | undefined;
-};
+import { FunctionReturningPromise } from 'hd-utils';
+import { UseAsyncCallParam, UseAsyncCallReturnType } from '../types';
 
 /**
  *@description React hook for calling async functions calls will return the state isLoading, isError
