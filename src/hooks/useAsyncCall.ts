@@ -1,19 +1,17 @@
 import { useEffect, useCallback, Key, useRef } from 'react';
 import useMountedState from './useMountedState';
+import { PAwaited } from '../types';
 export type FunctionReturningPromise = (...args: any[]) => Promise<any>;
-export type PromiseType<P extends Promise<any>> = P extends Promise<infer T>
-  ? T
-  : never;
-
 export type onError = (error: any) => void;
+export type Nullable<T extends any> = T | null;
 
 export type UseAsyncCallParam<T extends (...args: any) => any = any> = {
   asyncFunc: T;
-  defaultValue?: ReturnType<T>;
+  defaultValue?: PAwaited<ReturnType<T>>;
   throwError?: boolean;
   runOnMount?: boolean;
   runNow?: boolean;
-  onSuccess?: (param: Awaited<ReturnType<T>>) => void;
+  onSuccess?: (param: PAwaited<ReturnType<T>>) => void;
   onError?: onError;
   errorHandler?: (e: any) => void;
 };
@@ -23,7 +21,7 @@ export type UseAsyncCallReturnType<T extends (...args: any) => any> = {
   isLoading: boolean;
   isError: boolean;
   isSuccess: boolean;
-  val?: Awaited<ReturnType<T>>;
+  val: PAwaited<ReturnType<T>> | undefined;
 };
 
 export type Value =
@@ -54,7 +52,7 @@ export default function useAsyncCall<T extends FunctionReturningPromise>({
   const [state, setState] = useMountedState<ReturnType<T> | undefined>(
     defaultValue
   );
-  const [isLoading, setIsLoading] = useMountedState(false);
+  const [isLoading, setIsLoading] = useMountedState(runOnMount);
   const [isSuccess, setIsSuccess] = useMountedState(false);
   const [isError, setIsError] = useMountedState(false);
 
