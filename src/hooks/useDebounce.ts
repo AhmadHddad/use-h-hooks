@@ -5,6 +5,7 @@ import useUnmount from './useUnmount';
 
 /**
  * @description React hooks that debounce function
+ * @param wait default is 200ms
  */
 export default function useDebounce<T extends (...args: any[]) => any>(
   fn: T,
