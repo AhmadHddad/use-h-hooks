@@ -1,5 +1,5 @@
 {
-  "version": "0.1.2",
+  "version": "1.0.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -23,7 +23,7 @@
     "hooks",
     "AhmadHddad",
     "use-h-hooks",
-    "useHhooks",
+    "useHooks",
     "react"
   ],
   "peerDependencies": {
@@ -55,16 +55,20 @@
     }
   ],
   "devDependencies": {
+    "@size-limit/esbuild-why": "^9.0.0",
     "@size-limit/preset-small-lib": "^8.2.4",
+    "@types/react": "^18.0.28",
     "eslint-plugin-react-hooks": "4.5.0",
     "husky": "^8.0.3",
+    "react": "^18.2.0",
     "size-limit": "^8.2.4",
     "tsdx": "^0.14.1",
+    "tslib": "^2.5.0",
     "typedoc": "^0.23.25",
     "typedoc-plugin-markdown": "^3.14.0",
-    "tslib": "^2.5.0",
-    "@types/react": "^18.0.28",
-    "react": "^18.2.0",
     "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "hd-utils": "1.0.1"
   }
 }
