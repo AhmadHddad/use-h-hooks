@@ -1,7 +1,6 @@
-import { useEffect, useCallback, useRef } from 'react';
-import useMountedState from './useMountedState';
-import { FunctionReturningPromise } from 'hd-utils';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { UseAsyncCallParam, UseAsyncCallReturnType } from '../types';
+import { FunctionReturningPromise, PAwaited } from 'hd-utils';
 
 /**
  *@description React hook for calling async functions calls will return the state isLoading, isError
@@ -15,40 +14,76 @@ export default function useAsyncCall<T extends FunctionReturningPromise>({
   onSuccess,
   errorHandler,
   throwError = false,
+  cacheKey,
 }: UseAsyncCallParam<T>): UseAsyncCallReturnType<T> {
   const throwErrorRef = useRef(throwError);
-  const [state, setState] = useMountedState<ReturnType<T> | undefined>(
+  const [isLoading, setIsLoading] = useState(runOnMount);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [state, setState] = useState<PAwaited<ReturnType<T>> | undefined>(
     defaultValue
   );
-  const [isLoading, setIsLoading] = useMountedState(runOnMount);
-  const [isSuccess, setIsSuccess] = useMountedState(false);
-  const [isError, setIsError] = useMountedState(false);
+
+  const cache = useRef<Map<string, ReturnType<T>> | null>(null);
+  const cacheKeyRef = useRef<string | undefined>(cacheKey);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const loadDataFromCache = useCallback(() => {
+    if (cache.current && cacheKeyRef.current) {
+      const cachedData = cache.current.get(cacheKeyRef.current);
+      if (cachedData !== undefined) {
+        setState(cachedData as PAwaited<ReturnType<T>>);
+        setIsSuccess(true);
+        setIsError(false);
+      }
+    }
+  }, []);
 
   const mainCall = useCallback(
-    async function() {
+    async function(...args: any[]) {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      loadDataFromCache();
+
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+
       setIsLoading(true);
+
       try {
-        //@ts-ignore
-        // eslint-disable-next-line prefer-rest-params
-        const val = await asyncFunc(...arguments);
-        if (val) setState(val);
-        onSuccess?.(val);
-        setIsError(false);
-        setIsSuccess(true);
+        const val = await asyncFunc(...args, {
+          signal: abortController.signal,
+        });
+        if (val) {
+          setState(val);
+          onSuccess?.(val);
+          setIsError(false);
+          setIsSuccess(true);
+
+          if (cacheKeyRef.current) {
+            cache.current?.set(cacheKeyRef.current, val);
+          }
+        }
         setIsLoading(false);
         return val;
       } catch (error) {
+        setIsLoading(false);
+        if ((error as Error)?.name === 'AbortError') {
+          // Request was aborted, do not process further
+          return;
+        }
+
         setIsSuccess(false);
         onError?.(error);
         setIsError(true);
-        setIsLoading(false);
         if (errorHandler) errorHandler(error);
 
-        //@ts-ignore
-        if (throwErrorRef.current) throw new Error(error);
+        if (throwErrorRef.current) throw error;
       }
     },
-    [asyncFunc, errorHandler, onError]
+    [asyncFunc, errorHandler, onError, onSuccess, loadDataFromCache]
   );
 
   useEffect(() => {
@@ -57,24 +92,22 @@ export default function useAsyncCall<T extends FunctionReturningPromise>({
     }
 
     return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
       setIsLoading(false);
-      setState(undefined);
       setIsError(false);
       setIsSuccess(false);
     };
   }, [asyncFunc, onError, mainCall, runOnMount]);
 
   const onRun: any = useCallback(
-    function() {
+    function(...args: any[]) {
       throwErrorRef.current = true;
-
-      //@ts-ignore
-      // eslint-disable-next-line prefer-rest-params
-      return mainCall(...arguments);
+      return mainCall(...args);
     },
     [mainCall]
   );
 
-  //@ts-ignore
   return { run: onRun, val: state, isLoading, isError, isSuccess };
 }

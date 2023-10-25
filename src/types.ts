@@ -24,6 +24,7 @@ export type onError = (error: any) => void;
 export type UseAsyncCallParam<T extends (...args: any) => any = any> = {
   asyncFunc: T;
   defaultValue?: PAwaited<ReturnType<T>>;
+  cacheKey?: string;
   throwError?: boolean;
   runOnMount?: boolean;
   runNow?: boolean;
