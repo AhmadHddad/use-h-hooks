@@ -42,5 +42,6 @@ export default function useDebounce<T extends (...args: any[]) => any>(
     run: debounced,
     cancel: debounced.cancel,
     flush: debounced.flush,
+    pending:debounced.pending
   };
 }
