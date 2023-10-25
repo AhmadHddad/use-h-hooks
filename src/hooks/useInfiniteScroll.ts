@@ -57,6 +57,6 @@ export default function useInfiniteScroll({
     };
   }, [shouldLoadMore, runLoadMore]);
 
-  const shouldShowLoader = !(!hasMore || disabled);
+  const shouldShowLoader = !(!hasMore || disabled || isError);
   return { shouldShowLoader };
 }
