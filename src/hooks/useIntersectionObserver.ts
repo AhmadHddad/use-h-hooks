@@ -8,13 +8,13 @@ import { UseIntersectionObserverParams, UseIntersectionObserverReturn } from "..
  * @example 
  *   const { isInView } = useIntersectionObserver({
     element,
-    stop,
+    disabled,
   });
 
  */
 export default function useIntersectionObserver({
   element,
-  stop,
+  disabled,
   fallbackInView,
   onInView,
   ...options
@@ -22,7 +22,7 @@ export default function useIntersectionObserver({
   const [isInView, setIsInView] = useMountedState(false);
 
   useEffect(() => {
-    if (!element || stop) return;
+    if (!element || disabled) return;
 
     const observer = intersectionObserver(
       element,
@@ -38,7 +38,7 @@ export default function useIntersectionObserver({
 
     return observer;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [element, setIsInView, onInView, stop]);
+  }, [element, setIsInView, onInView, disabled]);
 
   return { isInView };
 }

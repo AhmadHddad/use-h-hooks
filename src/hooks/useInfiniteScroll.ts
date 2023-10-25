@@ -39,7 +39,7 @@ export default function useInfiniteScroll({
   const { isInView } = useIntersectionObserver({
     element,
     fallbackInView,
-    stop: isLoading || disabled || !hasMore || isError,
+    disabled: isLoading || disabled || !hasMore || isError,
   });
 
   const shouldLoadMore =
@@ -57,6 +57,6 @@ export default function useInfiniteScroll({
     };
   }, [shouldLoadMore, runLoadMore]);
 
-  const shouldShowLoader = !disabled && hasMore;
+  const shouldShowLoader = !(!hasMore || disabled);
   return { shouldShowLoader };
 }

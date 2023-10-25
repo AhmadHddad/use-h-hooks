@@ -15,7 +15,7 @@ export type UseIntersectionObserverParams = {
   element: Nullable<Element>;
   onInView?: (entry: IntersectionObserverEntry) => void;
   fallbackInView?: boolean;
-  stop?: boolean;
+  disabled?: boolean;
 } & IntersectionObserverInit;
 export type UseIntersectionObserverReturn = { isInView: boolean };
 
