@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
-export type ShowMoreParam = {
+export type ShowMoreTextParam = {
     initialState?: boolean;
     text: string;
     showMoreLabel?: string;
@@ -32,7 +32,7 @@ export type ShowMoreParam = {
     n = 100,
     showMoreLabel = "Show more",
     showLessLabel = "Show less"
-  }: ShowMoreParam): ShowMoreReturnType {
+  }: ShowMoreTextParam): ShowMoreReturnType {
     const [isShowMore, setIsShwMore] = useState(Boolean(initialState));
   
     const onShowMore = useCallback(() => {
