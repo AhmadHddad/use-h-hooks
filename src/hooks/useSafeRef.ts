@@ -1,4 +1,10 @@
-export default function useSafeRef<T>(val: T): () => T {
+import { isNullOrUndefined } from 'hd-utils';
+import { useCallback, useEffect, useRef } from 'react';
+
+/**
+ * @description will provide the latest value unless its null or undefined
+ */
+export default function useSafeRef<T>(val: T): [() => T] {
   const ref = useRef(val);
 
   useEffect(() => {
@@ -9,5 +15,5 @@ export default function useSafeRef<T>(val: T): () => T {
 
   const get = useCallback(() => ref.current, []);
 
-  return get;
+  return [get];
 }
