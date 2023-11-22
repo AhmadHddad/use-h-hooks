@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
   const imageUrl = 'https://example.com/image.jpg';
   const fallbackUrl = 'https://example.com/fallback.jpg';
 
-  const finalImageUrl = useValidatedImage(imageUrl, fallbackUrl);
+  const [finalImageUrl] = useValidatedImage(imageUrl, fallbackUrl);
 
   return (
     <div>
@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 export default function useValidatedImageURL(
   initialURL: string,
   fallbackURL: string
-) {
+): [string, boolean] {
   const [imageURL, setImageURL] = useState<string>(initialURL);
   const [isValidImg, setIsValidImg] = useState(false);
 
