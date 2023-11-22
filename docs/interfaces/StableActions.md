@@ -51,7 +51,7 @@
 
 #### Defined in
 
-[src/types.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L6)
+[src/types.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/e0d1859/src/types.ts#L6)
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L7)
+[src/types.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/e0d1859/src/types.ts#L7)
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:4](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L4)
+[src/types.ts:4](https://github.com/AhmadHddad/use-h-hooks/blob/e0d1859/src/types.ts#L4)
 
 ___
 
@@ -124,4 +124,4 @@ ___
 
 #### Defined in
 
-[src/types.ts:5](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L5)
+[src/types.ts:5](https://github.com/AhmadHddad/use-h-hooks/blob/e0d1859/src/types.ts#L5)
