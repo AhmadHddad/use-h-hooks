@@ -44,6 +44,7 @@
 - [useUnmount](modules.md#useunmount)
 - [useUpdate](modules.md#useupdate)
 - [useUpdateEffect](modules.md#useupdateeffect)
+- [useValidatedImageURL](modules.md#usevalidatedimageurl)
 
 ## References
 
@@ -59,7 +60,7 @@ Renames and re-exports [useEffectOnce](modules.md#useeffectonce)
 
 #### Defined in
 
-[src/types.ts:44](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/types.ts#L44)
+[src/types.ts:44](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L44)
 
 ___
 
@@ -89,7 +90,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:24](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/types.ts#L24)
+[src/types.ts:24](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L24)
 
 ___
 
@@ -115,7 +116,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:36](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/types.ts#L36)
+[src/types.ts:36](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L36)
 
 ___
 
@@ -125,7 +126,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:50](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/types.ts#L50)
+[src/types.ts:50](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L50)
 
 ___
 
@@ -141,7 +142,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:59](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/types.ts#L59)
+[src/types.ts:59](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L59)
 
 ___
 
@@ -151,7 +152,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:14](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/types.ts#L14)
+[src/types.ts:14](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L14)
 
 ___
 
@@ -167,7 +168,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:20](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/types.ts#L20)
+[src/types.ts:20](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L20)
 
 ___
 
@@ -191,7 +192,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:22](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/types.ts#L22)
+[src/types.ts:22](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/types.ts#L22)
 
 ## Functions
 
@@ -222,7 +223,7 @@ it will run at first mount unless you define otherwise.
 
 #### Defined in
 
-[src/hooks/useAsyncCall.ts:9](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useAsyncCall.ts#L9)
+[src/hooks/useAsyncCall.ts:9](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useAsyncCall.ts#L9)
 
 ___
 
@@ -264,7 +265,7 @@ React hooks that debounce function
 
 #### Defined in
 
-[src/hooks/useDebounce.ts:10](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useDebounce.ts#L10)
+[src/hooks/useDebounce.ts:10](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useDebounce.ts#L10)
 
 ___
 
@@ -288,7 +289,7 @@ will call the passed effect once per page mount.
 
 #### Defined in
 
-[src/hooks/useEffectOnce.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useEffectOnce.ts#L7)
+[src/hooks/useEffectOnce.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useEffectOnce.ts#L7)
 
 ___
 
@@ -306,7 +307,7 @@ React state hook that returns true if component is just mounted.
 
 #### Defined in
 
-[src/hooks/useFirstMountState.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useFirstMountState.ts#L6)
+[src/hooks/useFirstMountState.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useFirstMountState.ts#L6)
 
 ___
 
@@ -347,7 +348,7 @@ const { shouldShowLoader } = useInfiniteScroll({
 
 #### Defined in
 
-[src/hooks/useInfiniteScroll.ts:24](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useInfiniteScroll.ts#L24)
+[src/hooks/useInfiniteScroll.ts:24](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useInfiniteScroll.ts#L24)
 
 ___
 
@@ -380,7 +381,7 @@ const { isInView } = useIntersectionObserver({
 
 #### Defined in
 
-[src/hooks/useIntersectionObserver.ts:15](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useIntersectionObserver.ts#L15)
+[src/hooks/useIntersectionObserver.ts:15](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useIntersectionObserver.ts#L15)
 
 ___
 
@@ -404,7 +405,7 @@ will return a callback that returns true if the component is mounted
 
 #### Defined in
 
-[src/hooks/useIsMounted.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useIsMounted.ts#L6)
+[src/hooks/useIsMounted.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useIsMounted.ts#L6)
 
 ___
 
@@ -439,7 +440,7 @@ This is mostly useful to get access to the latest value of some props or state i
 
 #### Defined in
 
-[src/hooks/useLatest.ts:10](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useLatest.ts#L10)
+[src/hooks/useLatest.ts:10](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useLatest.ts#L10)
 
 ___
 
@@ -472,7 +473,7 @@ React sensor hook that fires a callback after long pressing.
 
 #### Defined in
 
-[src/hooks/useLongPress.ts:24](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useLongPress.ts#L24)
+[src/hooks/useLongPress.ts:24](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useLongPress.ts#L24)
 
 ___
 
@@ -529,7 +530,7 @@ const Demo = () => {
 
 #### Defined in
 
-[src/hooks/useMap.ts:32](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useMap.ts#L32)
+[src/hooks/useMap.ts:32](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useMap.ts#L32)
 
 ___
 
@@ -559,7 +560,7 @@ will set the state only when the component is mounted.
 
 #### Defined in
 
-[src/hooks/useMountedState.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useMountedState.ts#L7)
+[src/hooks/useMountedState.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useMountedState.ts#L7)
 
 ___
 
@@ -589,7 +590,7 @@ React hook for state as object, when u call setState({a:2}) => will only update 
 
 #### Defined in
 
-[src/hooks/useObjectState.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useObjectState.ts#L7)
+[src/hooks/useObjectState.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useObjectState.ts#L7)
 
 ___
 
@@ -620,7 +621,7 @@ React state hook that returns the previous state as described in the React hooks
 
 #### Defined in
 
-[src/hooks/usePrevious.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/usePrevious.ts#L6)
+[src/hooks/usePrevious.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/usePrevious.ts#L6)
 
 ___
 
@@ -653,7 +654,7 @@ console.log(textToDisplay) // "too long text"
 
 #### Defined in
 
-[src/hooks/useShowMoreText.ts:28](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useShowMoreText.ts#L28)
+[src/hooks/useShowMoreText.ts:28](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useShowMoreText.ts#L28)
 
 ___
 
@@ -677,7 +678,7 @@ useState but with toggle flags, when update is called will "toggle" the value
 
 #### Defined in
 
-[src/hooks/useToggle.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useToggle.ts#L7)
+[src/hooks/useToggle.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useToggle.ts#L7)
 
 ___
 
@@ -701,7 +702,7 @@ React lifecycle hook that calls a function when the component will unmount
 
 #### Defined in
 
-[src/hooks/useUnmount.ts:9](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useUnmount.ts#L9)
+[src/hooks/useUnmount.ts:9](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useUnmount.ts#L9)
 
 ___
 
@@ -725,7 +726,7 @@ React hook that when called will trigger rerender or update.
 
 #### Defined in
 
-[src/hooks/useUpdate.ts:9](https://github.com/AhmadHddad/use-h-hooks/blob/bd31a0a/src/hooks/useUpdate.ts#L9)
+[src/hooks/useUpdate.ts:9](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useUpdate.ts#L9)
 
 ___
 
@@ -751,3 +752,45 @@ React effect hook that ignores the first invocation (e.g. on mount). The signatu
 #### Defined in
 
 node_modules/@types/react/index.d.ts:1060
+
+___
+
+### useValidatedImageURL
+
+▸ **useValidatedImageURL**(`initialURL`, `fallbackURL`): (`string` \| `boolean`)[]
+
+**`Description`**
+
+Hook manages the state of an image URL in React. It validates the initial URL, falling back to an alternative URL if the initial one is invalid.
+
+**`Example`**
+
+```ts
+function MyComponent() {
+ const imageUrl = 'https://example.com/image.jpg';
+ const fallbackUrl = 'https://example.com/fallback.jpg';
+
+ const finalImageUrl = useValidatedImage(imageUrl, fallbackUrl);
+
+ return (
+   <div>
+     <img src={finalImageUrl} alt="Loaded Image" />
+   </div>
+ );
+}
+```
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `initialURL` | `string` |
+| `fallbackURL` | `string` |
+
+#### Returns
+
+(`string` \| `boolean`)[]
+
+#### Defined in
+
+[src/hooks/useValidatedImageURL.ts:20](https://github.com/AhmadHddad/use-h-hooks/blob/6862eb2/src/hooks/useValidatedImageURL.ts#L20)
