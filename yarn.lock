@@ -3589,18 +3589,6 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-hd-intersection-observer@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/hd-intersection-observer/-/hd-intersection-observer-1.0.0.tgz#102704a4a36023acf0584c315d848e7edecc7eae"
-  integrity sha512-UrExwbX0s9oJivv6tWaY2zZ5rS2fPrl0YW8cISUQjpgVwwUCddasSASRdXiQQf6WU9hiZP23iMtXICloQCceUw==
-
-hd-utils@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/hd-utils/-/hd-utils-1.0.4.tgz#e6c7ba15f4d86872a7e8df3c3f3e71d07c604883"
-  integrity sha512-7K/MO74AjZ5fh5pkZmjdlGmFBFCWatn+J6MIzYTXTNjOPQMgmt/UKaQ702ttemTAOCTpKeV0DWXSq4HixGPPjw==
-  dependencies:
-    hd-intersection-observer "^1.0.0"
-
 hosted-git-info@^2.1.4:
   version "2.8.9"
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"

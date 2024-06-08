@@ -27,7 +27,8 @@
     "react"
   ],
   "peerDependencies": {
-    "react": ">=16.8"
+    "react": ">=16.8",
+    "hd-utils": ">=1.2.2"
   },
   "husky": {
     "hooks": {
@@ -67,8 +68,5 @@
     "typedoc": "^0.25.13",
     "typedoc-plugin-markdown": "4.0.3",
     "typescript": "^4.9.5"
-  },
-  "dependencies": {
-    "hd-utils": "^1.0.4"
   }
 }
