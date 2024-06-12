@@ -72,4 +72,4 @@ React sensor hook that fires a callback after long pressing.
 
 ## Source
 
-[src/hooks/useLongPress.ts:24](https://github.com/AhmadHddad/use-h-hooks/blob/ae314d2676b1b3964a4dad4fdc6b1f452e4b2293/src/hooks/useLongPress.ts#L24)
+[src/hooks/useLongPress.ts:24](https://github.com/AhmadHddad/use-h-hooks/blob/daa6dd045ddcb2443f6d50fe7685055eb57611b7/src/hooks/useLongPress.ts#L24)

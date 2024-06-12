@@ -22,6 +22,7 @@
 
 ## Functions
 
+- [createGlobalStore](functions/createGlobalStore.md)
 - [useAsyncCall](functions/useAsyncCall.md)
 - [useDebounce](functions/useDebounce.md)
 - [useEffectOnce](functions/useEffectOnce.md)

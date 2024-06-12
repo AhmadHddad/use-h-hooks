@@ -20,3 +20,4 @@ export { default as useLatest } from './hooks/useLatest';
 export { default as useMountedState } from './hooks/useMountedState';
 export { default as usePrevious } from './hooks/usePrevious';
 export { default as useValidatedImageURL } from './hooks/useValidatedImageURL';
+export { default as createGlobalStore } from './creators/createGlobalStore';

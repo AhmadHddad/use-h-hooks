@@ -34,7 +34,7 @@
 
 #### Source
 
-[src/types.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/ae314d2676b1b3964a4dad4fdc6b1f452e4b2293/src/types.ts#L6)
+[src/types.ts:6](https://github.com/AhmadHddad/use-h-hooks/blob/daa6dd045ddcb2443f6d50fe7685055eb57611b7/src/types.ts#L6)
 
 ***
 
@@ -48,7 +48,7 @@
 
 #### Source
 
-[src/types.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/ae314d2676b1b3964a4dad4fdc6b1f452e4b2293/src/types.ts#L7)
+[src/types.ts:7](https://github.com/AhmadHddad/use-h-hooks/blob/daa6dd045ddcb2443f6d50fe7685055eb57611b7/src/types.ts#L7)
 
 ***
 
@@ -72,7 +72,7 @@
 
 #### Source
 
-[src/types.ts:4](https://github.com/AhmadHddad/use-h-hooks/blob/ae314d2676b1b3964a4dad4fdc6b1f452e4b2293/src/types.ts#L4)
+[src/types.ts:4](https://github.com/AhmadHddad/use-h-hooks/blob/daa6dd045ddcb2443f6d50fe7685055eb57611b7/src/types.ts#L4)
 
 ***
 
@@ -90,4 +90,4 @@
 
 #### Source
 
-[src/types.ts:5](https://github.com/AhmadHddad/use-h-hooks/blob/ae314d2676b1b3964a4dad4fdc6b1f452e4b2293/src/types.ts#L5)
+[src/types.ts:5](https://github.com/AhmadHddad/use-h-hooks/blob/daa6dd045ddcb2443f6d50fe7685055eb57611b7/src/types.ts#L5)

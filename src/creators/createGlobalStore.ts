@@ -1,21 +1,31 @@
-import { EventBus, isArray, isObject, joinObjects } from 'hd-utils';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { EventBus, isObject, joinObjects } from 'hd-utils';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+function newObjWithKeys<T>(keyList: any[], mappedToObj: any) {
+  const newObj = {};
+
+  keyList.forEach(key => {
+    (newObj as any)[key] = mappedToObj[key];
+  });
+  return newObj as T;
+}
 
 /**
  * @description will create a global store where state is shared among components that use the returned hook
  * @example export const useStore = createGlobalStore({a:1, b:2});
  * @returns hook that is used to connect the component with the store.
  * its its really recommended to specify the used store keys in the returned hook (as list of strings) to reduce the component rerendering.
-  * @example const Component = () =>{
+ * @example const Component = () =>{
  * const [storeState, setStoreState] = useStore(["a"]);
  *
  * return <button onClick={()=> setStoreState({a:3})}>Click me</button>
  * }
  */
 export default function createGlobalStore<T extends Record<string, any>>(
-  initState: T = {} as T
+  initState: T = {} as T,
+  config?: { shallowCompareOnSetState?: boolean }
 ) {
-  if (initState && !isObject(initState))
+  if (!isObject(initState))
     throw new Error('Error: The initial state should be of type object');
 
   const storeState = { ...initState };
@@ -23,27 +33,24 @@ export default function createGlobalStore<T extends Record<string, any>>(
 
   type Keys = keyof typeof storeState;
 
-  return (select?: Keys[]): [T, (s: T) => void] => {
-    const componentInitState: T = useMemo(() => {
-      if (isArray(select) && select.length) {
-        const obj = {};
+  return (
+    select?: Keys[],
+    options?: { shallowCompareOnSetState?: boolean }
+  ): [T, (s: T) => void] => {
+    const { shallowCompareOnSetState } = options || {};
 
-        select.forEach(key => {
-          (obj as any)[key] = storeState[key];
-        });
-        return obj as T;
-      } else {
-        return storeState;
-      }
-    }, [select]);
-    const [state, setState] = useState(componentInitState);
+    const componentInitState = useRef<T>(
+      Array.isArray(select) ? newObjWithKeys<T>(select, storeState) : storeState
+    );
+
+    const [state, setState] = useState(componentInitState.current);
 
     useEffect(() => {
       const handleStateChange = (newState: T) => {
         setState(prev => joinObjects<T>(prev, newState));
       };
 
-      const keysList = Object.keys(componentInitState);
+      const keysList = Object.keys(componentInitState.current);
 
       keysList.forEach(key => {
         if (select && !select?.includes(key)) return;
@@ -56,7 +63,7 @@ export default function createGlobalStore<T extends Record<string, any>>(
           storeBus.unsubscribe(key, handleStateChange);
         });
       };
-    }, [componentInitState, select]);
+    }, [select]);
 
     const updateState = useCallback(
       (newState: T) => {
@@ -66,13 +73,20 @@ export default function createGlobalStore<T extends Record<string, any>>(
         Object.keys(newState).forEach(key => {
           if (select && !select?.includes(key)) return;
 
-          (componentInitState as any)[key] = newState[key];
-          storeBus.publish(key, { ...componentInitState });
+          if (
+            (shallowCompareOnSetState ?? config?.shallowCompareOnSetState) &&
+            componentInitState.current[key] === newState[key]
+          )
+            return;
+
+          (componentInitState.current as any)[key] = newState[key];
+          storeBus.publish(key, { ...componentInitState.current });
         });
       },
-      [componentInitState, select]
+      [select, shallowCompareOnSetState]
     );
 
     return [state, updateState];
   };
 }
+
