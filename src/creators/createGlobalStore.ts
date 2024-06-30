@@ -1,5 +1,15 @@
-import { EventBus, isObject, joinObjects } from 'hd-utils';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  EventBus,
+  deepClone,
+  getWindow,
+  has,
+  isLength,
+  isNullOrUndefined,
+  isObject,
+  joinObjects,
+} from 'hd-utils';
+import { useCallback, useEffect, useRef } from 'react';
+import useUpdate from '../hooks/useUpdate';
 
 function newObjWithKeys<T>(keyList: any[], mappedToObj: any) {
   const newObj = {};
@@ -9,6 +19,11 @@ function newObjWithKeys<T>(keyList: any[], mappedToObj: any) {
   });
   return newObj as T;
 }
+
+type HookOptions = {
+  // comparer: (oldState: T, newState:T) => boolean;
+  resetState: (all?: boolean) => void;
+};
 
 /**
  * @description will create a global store where state is shared among components that use the returned hook
@@ -28,7 +43,12 @@ export default function createGlobalStore<T extends Record<string, any>>(
   if (!isObject(initState))
     throw new Error('Error: The initial state should be of type object');
 
-  const storeState = { ...initState };
+  const myWindow = getWindow();
+  const oldState = { ...initState };
+  let storeState = !isNullOrUndefined(myWindow.structuredClone)
+    ? structuredClone(initState)
+    : deepClone(initState);
+
   const storeBus = new EventBus();
 
   type Keys = keyof typeof storeState;
@@ -36,57 +56,81 @@ export default function createGlobalStore<T extends Record<string, any>>(
   return (
     select?: Keys[],
     options?: { shallowCompareOnSetState?: boolean }
-  ): [T, (s: T) => void] => {
+  ): [() => T, (s: T) => void, HookOptions] => {
     const { shallowCompareOnSetState } = options || {};
-
     const componentInitState = useRef<T>(
       Array.isArray(select) ? newObjWithKeys<T>(select, storeState) : storeState
     );
-
-    const [state, setState] = useState(componentInitState.current);
+    const shallowCompare =
+      shallowCompareOnSetState ?? config?.shallowCompareOnSetState;
+    const rerender = useUpdate();
 
     useEffect(() => {
       const handleStateChange = (newState: T) => {
-        setState(prev => joinObjects<T>(prev, newState));
+        if (isLength(newState)) {
+          componentInitState.current = joinObjects(
+            componentInitState.current,
+            newState
+          );
+          storeState = joinObjects(storeState, newState);
+          rerender();
+        }
       };
 
       const keysList = Object.keys(componentInitState.current);
 
-      keysList.forEach(key => {
-        if (select && !select?.includes(key)) return;
-
+      for (let i = 0; i < keysList.length; i++) {
+        const key = keysList[i];
         storeBus.subscribe(key, handleStateChange);
-      });
+      }
 
       return () => {
-        keysList.forEach(key => {
+        for (let i = 0; i < keysList.length; i++) {
+          const key = keysList[i];
           storeBus.unsubscribe(key, handleStateChange);
-        });
+        }
       };
-    }, [select]);
+    }, [select, rerender]);
 
     const updateState = useCallback(
       (newState: T) => {
-        if (!isObject(newState))
+        if (!isObject(newState)) {
           throw new Error('Error: The updated state should be of type object');
+        }
 
-        Object.keys(newState).forEach(key => {
-          if (select && !select?.includes(key)) return;
+        const keys = Object.keys(newState);
+        for (let i = 0; i < keys.length; i++) {
+          const key = keys[i];
 
           if (
-            (shallowCompareOnSetState ?? config?.shallowCompareOnSetState) &&
-            componentInitState.current[key] === newState[key]
-          )
-            return;
+            (shallowCompare &&
+              componentInitState.current[key] === newState[key]) ||
+            !has(componentInitState.current, key)
+          ) {
+            continue;
+          }
 
-          (componentInitState.current as any)[key] = newState[key];
-          storeBus.publish(key, { ...componentInitState.current });
-        });
+          storeBus.publish(key, { [key]: newState[key] });
+        }
       },
-      [select, shallowCompareOnSetState]
+      [shallowCompare]
     );
 
-    return [state, updateState];
+    const resetState = useCallback((all?: boolean) => {
+      if (all) {
+        const oldStateKeys = Object.keys(oldState);
+        for (let i = 0; i < oldStateKeys.length; i++) {
+          const key = oldStateKeys[i];
+          storeBus.publish(key, { [key]: oldState[key] });
+        }
+      } else {
+      }
+    }, []);
+
+    return [
+      useCallback(() => componentInitState.current, []),
+      updateState,
+      { resetState },
+    ];
   };
 }
-
