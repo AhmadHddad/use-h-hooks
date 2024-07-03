@@ -45,7 +45,7 @@ export default function createGlobalStore<T extends Record<string, any>>(
 
   const myWindow = getWindow();
   const oldState = { ...initState };
-  let storeState = !isNullOrUndefined(myWindow.structuredClone)
+  let storeState = isNullOrUndefined(myWindow?.structuredClone)
     ? structuredClone(initState)
     : deepClone(initState);
 
@@ -90,7 +90,7 @@ export default function createGlobalStore<T extends Record<string, any>>(
           storeBus.unsubscribe(key, handleStateChange);
         }
       };
-    }, [select, rerender]);
+    }, [rerender]);
 
     const updateState = useCallback(
       (newState: T) => {
@@ -117,14 +117,11 @@ export default function createGlobalStore<T extends Record<string, any>>(
     );
 
     const resetState = useCallback((all?: boolean) => {
-      if (all) {
-        const oldStateKeys = Object.keys(oldState);
-        for (let i = 0; i < oldStateKeys.length; i++) {
-          const key = oldStateKeys[i];
-          storeBus.publish(key, { [key]: oldState[key] });
-        }
-      } else {
-      }
+      const keyList: string[] =
+        all || !select?.length ? Object.keys(oldState) : (select as string[]);
+      keyList.forEach(key => {
+        storeBus.publish(key, { [key]: oldState[key] });
+      });
     }, []);
 
     return [
