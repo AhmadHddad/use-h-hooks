@@ -56,7 +56,7 @@ export default function createGlobalStore<T extends Record<string, any>>(
   return (
     select?: Keys[],
     options?: { shallowCompareOnSetState?: boolean }
-  ): [() => T, (s: T) => void, HookOptions] => {
+  ): [() => T, (s: Partial<T>) => void, HookOptions] => {
     const { shallowCompareOnSetState } = options || {};
     const componentInitState = useRef<T>(
       Array.isArray(select) ? newObjWithKeys<T>(select, storeState) : storeState
@@ -93,7 +93,7 @@ export default function createGlobalStore<T extends Record<string, any>>(
     }, [rerender]);
 
     const updateState = useCallback(
-      (newState: T) => {
+      (newState: Partial<T>) => {
         if (!isObject(newState)) {
           throw new Error('Error: The updated state should be of type object');
         }
