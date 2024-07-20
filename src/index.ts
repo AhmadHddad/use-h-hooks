@@ -2,7 +2,7 @@ export * from './types'
 
 export { default as useAsyncCall } from './hooks/useAsyncCall';
 export { default as useObjectState } from './hooks/useObjectState';
-export { default as useMap } from './hooks/useMap';
+export { default as useMapState } from './hooks/useMapState';
 export { default as useUpdateEffect } from './hooks/useUpdateEffect';
 export { default as useUpdate } from './hooks/useUpdate';
 export { default as useLongPress } from './hooks/useLongPress';

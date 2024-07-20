@@ -29,7 +29,7 @@ const Demo = () => {
   );
 };`
  */
-const useMap = <T extends object = any>(
+const useMapState = <T extends object = any>(
   initialMap: T = {} as T
 ): [T, Actions<T>] => {
   const [map, set] = useMountedState<T>(initialMap);
@@ -64,4 +64,4 @@ const useMap = <T extends object = any>(
   return [map, utils];
 };
 
-export default useMap;
+export default useMapState;
