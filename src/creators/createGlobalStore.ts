@@ -14,16 +14,20 @@ import useUpdate from '../hooks/useUpdate';
 function newObjWithKeys<T>(keyList: any[], mappedToObj: any) {
   const newObj = {};
 
-  keyList.forEach(key => {
+  keyList.forEach((key) => {
     (newObj as any)[key] = mappedToObj[key];
   });
   return newObj as T;
 }
 
 type HookOptions = {
-  // comparer: (oldState: T, newState:T) => boolean;
   resetState: (all?: boolean) => void;
 };
+type HookConfigs<T> = Partial<{
+  shallowCompareOnSetState: boolean;
+  comparer: (oldState: T, newState: T) => boolean;
+}>;
+type HookResult<T> = [() => T, (s: Partial<T>) => void, HookOptions];
 
 /**
  * @description will create a global store where state is shared among components that use the returned hook
@@ -53,11 +57,8 @@ export default function createGlobalStore<T extends Record<string, any>>(
 
   type Keys = keyof typeof storeState;
 
-  return (
-    select?: Keys[],
-    options?: { shallowCompareOnSetState?: boolean }
-  ): [() => T, (s: Partial<T>) => void, HookOptions] => {
-    const { shallowCompareOnSetState } = options || {};
+  function hook(select?: Keys[], configs?: HookConfigs<T>): HookResult<T> {
+    const { shallowCompareOnSetState, comparer } = configs || {};
     const componentInitState = useRef<T>(
       Array.isArray(select) ? newObjWithKeys<T>(select, storeState) : storeState
     );
@@ -66,7 +67,7 @@ export default function createGlobalStore<T extends Record<string, any>>(
     const rerender = useUpdate();
 
     useEffect(() => {
-      const handleStateChange = (newState: T) => {
+      const handleStateChange = (newState: Partial<T>) => {
         if (isLength(newState)) {
           componentInitState.current = joinObjects(
             componentInitState.current,
@@ -99,10 +100,13 @@ export default function createGlobalStore<T extends Record<string, any>>(
         }
 
         const keys = Object.keys(newState);
+
         for (let i = 0; i < keys.length; i++) {
           const key = keys[i];
 
           if (
+            (comparer &&
+              comparer?.(componentInitState.current, newState as T)) ||
             (shallowCompare &&
               componentInitState.current[key] === newState[key]) ||
             !has(componentInitState.current, key)
@@ -119,7 +123,7 @@ export default function createGlobalStore<T extends Record<string, any>>(
     const resetState = useCallback((all?: boolean) => {
       const keyList: string[] =
         all || !select?.length ? Object.keys(oldState) : (select as string[]);
-      keyList.forEach(key => {
+      keyList.forEach((key) => {
         storeBus.publish(key, { [key]: oldState[key] });
       });
     }, []);
@@ -129,5 +133,13 @@ export default function createGlobalStore<T extends Record<string, any>>(
       updateState,
       { resetState },
     ];
+  }
+
+  hook.setGlobalState = function (newState: Partial<T>) {
+    Object.keys(newState).forEach((key) => {
+      storeBus.publish(key, { [key]: newState[key] });
+    });
   };
+
+  return hook;
 }
