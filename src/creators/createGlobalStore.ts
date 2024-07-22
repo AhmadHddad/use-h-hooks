@@ -2,14 +2,13 @@ import {
   EventBus,
   deepClone,
   getWindow,
-  has,
-  isLength,
+  includeKeys,
   isNullOrUndefined,
   isObject,
   joinObjects,
-} from 'hd-utils';
-import { useCallback, useEffect, useRef } from 'react';
-import useUpdate from '../hooks/useUpdate';
+} from "hd-utils";
+import { useCallback, useEffect, useRef } from "react";
+import useUpdate from "../hooks/useUpdate";
 
 function newObjWithKeys<T>(keyList: any[], mappedToObj: any) {
   const newObj = {};
@@ -29,6 +28,8 @@ type HookConfigs<T> = Partial<{
 }>;
 type HookResult<T> = [() => T, (s: Partial<T>) => void, HookOptions];
 
+const UPDATE_STATE = "UPDATE_STATE";
+
 /**
  * @description will create a global store where state is shared among components that use the returned hook
  * @example export const useStore = createGlobalStore({a:1, b:2});
@@ -45,7 +46,7 @@ export default function createGlobalStore<T extends Record<string, any>>(
   config?: { shallowCompareOnSetState?: boolean }
 ) {
   if (!isObject(initState))
-    throw new Error('Error: The initial state should be of type object');
+    throw new Error("Error: The initial state should be of type object");
 
   const myWindow = getWindow();
   const oldState = { ...initState };
@@ -57,76 +58,66 @@ export default function createGlobalStore<T extends Record<string, any>>(
 
   type Keys = keyof typeof storeState;
 
-  function hook(select?: Keys[], configs?: HookConfigs<T>): HookResult<T> {
+  function useStore(select?: Keys[], configs?: HookConfigs<T>): HookResult<T> {
     const { shallowCompareOnSetState, comparer } = configs || {};
     const componentInitState = useRef<T>(
       Array.isArray(select) ? newObjWithKeys<T>(select, storeState) : storeState
     );
-    const shallowCompare =
-      shallowCompareOnSetState ?? config?.shallowCompareOnSetState;
+    const shallowCompare = shallowCompareOnSetState ?? config?.shallowCompareOnSetState;
     const rerender = useUpdate();
 
     useEffect(() => {
       const handleStateChange = (newState: Partial<T>) => {
-        if (isLength(newState)) {
-          componentInitState.current = joinObjects(
-            componentInitState.current,
-            newState
-          );
-          storeState = joinObjects(storeState, newState);
-          rerender();
+        for (const key in newState) {
+          if (!Object.prototype.hasOwnProperty.call(componentInitState.current, key)) {
+            return;
+          }
         }
+
+        componentInitState.current = joinObjects(componentInitState.current, newState);
+        storeState = joinObjects(storeState, newState);
+        rerender();
       };
 
-      const keysList = Object.keys(componentInitState.current);
-
-      for (let i = 0; i < keysList.length; i++) {
-        const key = keysList[i];
-        storeBus.subscribe(key, handleStateChange);
-      }
+      storeBus.subscribe(UPDATE_STATE, handleStateChange);
 
       return () => {
-        for (let i = 0; i < keysList.length; i++) {
-          const key = keysList[i];
-          storeBus.unsubscribe(key, handleStateChange);
-        }
+        storeBus.unsubscribe(UPDATE_STATE, handleStateChange);
       };
     }, [rerender]);
 
     const updateState = useCallback(
       (newState: Partial<T>) => {
         if (!isObject(newState)) {
-          throw new Error('Error: The updated state should be of type object');
+          throw new Error("Error: The updated state should be of type object");
         }
 
-        const keys = Object.keys(newState);
+        const isEqual = comparer && comparer(componentInitState.current, newState as T);
 
-        for (let i = 0; i < keys.length; i++) {
-          const key = keys[i];
+        if (isEqual) return;
 
-          if (
-            (comparer &&
-              comparer?.(componentInitState.current, newState as T)) ||
-            (shallowCompare &&
-              componentInitState.current[key] === newState[key]) ||
-            !has(componentInitState.current, key)
-          ) {
-            continue;
-          }
-
-          storeBus.publish(key, { [key]: newState[key] });
+        if (shallowCompare) {
+          const keyList = select || Object.keys(componentInitState.current);
+          keyList.forEach((key) => {
+            if (componentInitState.current[key] === newState[key]) {
+              delete newState[key];
+            }
+          });
         }
+        storeBus.publish(UPDATE_STATE, newState);
       },
-      [shallowCompare]
+      [comparer, select, shallowCompare]
     );
 
-    const resetState = useCallback((all?: boolean) => {
-      const keyList: string[] =
-        all || !select?.length ? Object.keys(oldState) : (select as string[]);
-      keyList.forEach((key) => {
-        storeBus.publish(key, { [key]: oldState[key] });
-      });
-    }, []);
+    const resetState = useCallback(
+      (all?: boolean) => {
+        const newState =
+          !all && select ? includeKeys(oldState, select as string[]) : oldState;
+
+        storeBus.publish(UPDATE_STATE, newState);
+      },
+      [select]
+    );
 
     return [
       useCallback(() => componentInitState.current, []),
@@ -135,11 +126,9 @@ export default function createGlobalStore<T extends Record<string, any>>(
     ];
   }
 
-  hook.setGlobalState = function (newState: Partial<T>) {
-    Object.keys(newState).forEach((key) => {
-      storeBus.publish(key, { [key]: newState[key] });
-    });
+  useStore.setGlobalState = function (newState: Partial<T>) {
+    storeBus.publish(UPDATE_STATE, newState);
   };
 
-  return hook;
+  return useStore;
 }
