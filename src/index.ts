@@ -14,6 +14,7 @@ export { default as useInfiniteScroll } from './hooks/useInfiniteScroll';
 export { default as useFirstMountState } from './hooks/useFirstMountState';
 export { default as useToggle } from './hooks/useToggle';
 export { default as useDebounce } from './hooks/useDebounce';
+export { default as useSafeState } from './hooks/useSafeState';
 export { default as useIsMounted } from './hooks/useIsMounted';
 export { default as useUnmount } from './hooks/useUnmount';
 export { default as useLatest } from './hooks/useLatest';
