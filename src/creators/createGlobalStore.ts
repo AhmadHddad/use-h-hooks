@@ -6,15 +6,18 @@ import {
   isNullOrUndefined,
   isObject,
   joinObjects,
-} from "hd-utils";
-import { useCallback, useEffect, useRef } from "react";
-import useUpdate from "../hooks/useUpdate";
+} from 'hd-utils';
+import { useCallback, useEffect, useRef } from 'react';
+import useUpdate from '../hooks/useUpdate';
 
-function newObjWithKeys<T>(keyList: any[], mappedToObj: any) {
-  const newObj = {};
+function newObjWithKeys<T>(
+  keyList: string[],
+  mappedToObj: Record<string, unknown>
+) {
+  const newObj: Record<string, unknown> = {};
 
-  keyList.forEach((key) => {
-    (newObj as any)[key] = mappedToObj[key];
+  keyList.forEach((key: string) => {
+    newObj[key] = mappedToObj[key];
   });
   return newObj as T;
 }
@@ -22,13 +25,19 @@ function newObjWithKeys<T>(keyList: any[], mappedToObj: any) {
 type HookOptions = {
   resetState: (all?: boolean) => void;
 };
-type HookConfigs<T> = Partial<{
+type HookConfigs = Partial<{
   shallowCompareOnSetState: boolean;
-  comparer: (oldState: T, newState: T) => boolean;
 }>;
-type HookResult<T> = [() => T, (s: Partial<T>) => void, HookOptions];
 
-const UPDATE_STATE = "UPDATE_STATE";
+type HookResultOptions<T> = { comparer: (oldState: T, newState: T) => boolean };
+
+type HookResult<T> = [
+  () => T,
+  (s: Partial<T>, options: HookResultOptions<T>) => void,
+  HookOptions
+];
+
+const UPDATE_STATE = 'UPDATE_STATE';
 
 /**
  * @description will create a global store where state is shared among components that use the returned hook
@@ -41,12 +50,12 @@ const UPDATE_STATE = "UPDATE_STATE";
  * return <button onClick={()=> setStoreState({a:3})}>Click me</button>
  * }
  */
-export default function createGlobalStore<T extends Record<string, any>>(
+export default function createGlobalStore<T extends Record<string, unknown>>(
   initState: T = {} as T,
   config?: { shallowCompareOnSetState?: boolean }
 ) {
   if (!isObject(initState))
-    throw new Error("Error: The initial state should be of type object");
+    throw new Error('Error: The initial state should be of type object');
 
   const myWindow = getWindow();
   const oldState = { ...initState };
@@ -58,23 +67,34 @@ export default function createGlobalStore<T extends Record<string, any>>(
 
   type Keys = keyof typeof storeState;
 
-  function useStore(select?: Keys[], configs?: HookConfigs<T>): HookResult<T> {
-    const { shallowCompareOnSetState, comparer } = configs || {};
+  function useStore(select?: Keys[], configs?: HookConfigs): HookResult<T> {
+    const { shallowCompareOnSetState } = configs || {};
     const componentInitState = useRef<T>(
-      Array.isArray(select) ? newObjWithKeys<T>(select, storeState) : storeState
+      Array.isArray(select)
+        ? newObjWithKeys<T>(select as string[], storeState)
+        : storeState
     );
-    const shallowCompare = shallowCompareOnSetState ?? config?.shallowCompareOnSetState;
+    const shallowCompare =
+      shallowCompareOnSetState ?? config?.shallowCompareOnSetState;
     const rerender = useUpdate();
 
     useEffect(() => {
       const handleStateChange = (newState: Partial<T>) => {
         for (const key in newState) {
-          if (!Object.prototype.hasOwnProperty.call(componentInitState.current, key)) {
+          if (
+            !Object.prototype.hasOwnProperty.call(
+              componentInitState.current,
+              key
+            )
+          ) {
             return;
           }
         }
 
-        componentInitState.current = joinObjects(componentInitState.current, newState);
+        componentInitState.current = joinObjects(
+          componentInitState.current,
+          newState
+        );
         storeState = joinObjects(storeState, newState);
         rerender();
       };
@@ -87,18 +107,19 @@ export default function createGlobalStore<T extends Record<string, any>>(
     }, [rerender]);
 
     const updateState = useCallback(
-      (newState: Partial<T>) => {
+      (newState: Partial<T>, { comparer }: HookResultOptions<T>) => {
         if (!isObject(newState)) {
-          throw new Error("Error: The updated state should be of type object");
+          throw new Error('Error: The updated state should be of type object');
         }
 
-        const isEqual = comparer && comparer(componentInitState.current, newState as T);
+        const isEqual =
+          comparer && comparer(componentInitState.current, newState as T);
 
         if (isEqual) return;
 
         if (shallowCompare) {
           const keyList = select || Object.keys(componentInitState.current);
-          keyList.forEach((key) => {
+          keyList.forEach(key => {
             if (componentInitState.current[key] === newState[key]) {
               delete newState[key];
             }
@@ -106,7 +127,7 @@ export default function createGlobalStore<T extends Record<string, any>>(
         }
         storeBus.publish(UPDATE_STATE, newState);
       },
-      [comparer, select, shallowCompare]
+      [select, shallowCompare]
     );
 
     const resetState = useCallback(
@@ -126,7 +147,7 @@ export default function createGlobalStore<T extends Record<string, any>>(
     ];
   }
 
-  useStore.setGlobalState = function (newState: Partial<T>) {
+  useStore.setGlobalState = function(newState: Partial<T>) {
     storeBus.publish(UPDATE_STATE, newState);
   };
 
