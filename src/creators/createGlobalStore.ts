@@ -33,7 +33,7 @@ type HookResultOptions<T> = { comparer: (oldState: T, newState: T) => boolean };
 
 type HookResult<T> = [
   () => T,
-  (s: Partial<T>, options: HookResultOptions<T>) => void,
+  (s: Partial<T>, options?: HookResultOptions<T>) => void,
   HookOptions
 ];
 
@@ -106,14 +106,15 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
       };
     }, [rerender]);
 
-    const updateState = useCallback(
-      (newState: Partial<T>, { comparer }: HookResultOptions<T>) => {
+    const updateState: HookResult<T>[1] = useCallback(
+      (newState, options) => {
         if (!isObject(newState)) {
           throw new Error('Error: The updated state should be of type object');
         }
 
         const isEqual =
-          comparer && comparer(componentInitState.current, newState as T);
+          options?.comparer &&
+          options.comparer(componentInitState.current, newState as T);
 
         if (isEqual) return;
 
@@ -130,8 +131,8 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
       [select, shallowCompare]
     );
 
-    const resetState = useCallback(
-      (all?: boolean) => {
+    const resetState: HookOptions['resetState'] = useCallback(
+      all => {
         const newState =
           !all && select ? includeKeys(oldState, select as string[]) : oldState;
 
