@@ -7,7 +7,7 @@ import {
   stringifyUrl,
 } from 'hd-utils';
 import { useCallback, useState } from 'react';
-import { useMountEffect } from '..';
+import { useMountEffect , useMountedState} from '..';
 
 function newObjWithKeys<T>(
   keyList: string[],
@@ -25,6 +25,7 @@ type GlobalStoreConfig = Partial<{
   queryPrefix: string;
   persist: boolean;
   url: string;
+  useMountedState:boolean;
   useQueryParams: boolean;
   persistKey: string;
   shallowCompareOnSetState: boolean;
@@ -101,8 +102,9 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
   }
 
   function useStore(select?: Keys[], configs?: HookConfigs): HookResult<T> {
+    const useSt = config?.useMountedState ? useMountedState: useState;
     const { shallowCompareOnSetState } = configs || {};
-    const [componentState, setComponentState] = useState<T>(
+    const [componentState, setComponentState] = useSt<T>(
       Array.isArray(select)
         ? newObjWithKeys<T>(select as string[], storeState)
         : storeState
