@@ -7,7 +7,7 @@ import {
   stringifyUrl,
 } from 'hd-utils';
 import { useCallback, useState } from 'react';
-import { useMountEffect , useMountedState} from '..';
+import { useMountEffect, useMountedState } from '..';
 
 function newObjWithKeys<T>(
   keyList: string[],
@@ -21,23 +21,25 @@ function newObjWithKeys<T>(
   return newObj as T;
 }
 
-type GlobalStoreConfig = Partial<{
+type SharedConfigs = Partial<{
   queryPrefix: string;
+  shallowCompareOnSetState: string;
+}>;
+
+type GlobalStoreConfig = Partial<{
   persist: boolean;
+  useMountedState: boolean;
   url: string;
-  useMountedState:boolean;
   useQueryParams: boolean;
   persistKey: string;
-  shallowCompareOnSetState: boolean;
-}>;
+}> &
+  SharedConfigs;
 
 type HookOptions = {
   resetState: (all?: boolean) => void;
 };
-type HookConfigs = Partial<{
-  shallowCompareOnSetState: boolean;
-  queryPrefix: string;
-}>;
+
+type HookConfigs = Partial<{}> & SharedConfigs;
 
 type HookResultOptions<T> = { comparer: (oldState: T, newState: T) => boolean };
 
@@ -66,20 +68,20 @@ const UPDATE_STATE = 'UPDATE_STATE';
  */
 export default function createGlobalStore<T extends Record<string, unknown>>(
   initState: T = {} as T,
-  config?: GlobalStoreConfig
+  storeConfigs?: GlobalStoreConfig
 ) {
   if (!isObject(initState))
     throw new Error('Error: The initial state should be of type object');
 
   const myWindow = getWindow();
-  const queryPrefix = config?.queryPrefix || 'h_store_';
-  const persistKey = config?.persistKey || 'h_store';
-  const url = config?.url || myWindow.location.href;
+  const queryPrefix = storeConfigs?.queryPrefix || 'h_store_';
+  const persistKey = storeConfigs?.persistKey || 'h_store';
+  const url = storeConfigs?.url || myWindow.location.href;
   const oldState = { ...initState };
-  const oldStateFromQuery = config?.useQueryParams
+  const oldStateFromQuery = storeConfigs?.useQueryParams
     ? (getInitStateFromQuery(url, queryPrefix) as T)
     : {};
-  const oldStateFromPersist = config?.persist
+  const oldStateFromPersist = storeConfigs?.persist
     ? getInitStateFromPersist(persistKey)
     : {};
 
@@ -93,17 +95,17 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
 
   type Keys = keyof typeof storeState;
 
-  if (config?.useQueryParams) {
+  if (storeConfigs?.useQueryParams) {
     updateQueryParams(url, storeState, queryPrefix);
   }
 
-  if (config?.persist) {
+  if (storeConfigs?.persist) {
     myWindow.localStorage.setItem(persistKey, JSON.stringify(storeState));
   }
 
-  function useStore(select?: Keys[], configs?: HookConfigs): HookResult<T> {
-    const useSt = config?.useMountedState ? useMountedState: useState;
-    const { shallowCompareOnSetState } = configs || {};
+  function useStore(select?: Keys[], hookConfigs?: HookConfigs): HookResult<T> {
+    const { shallowCompareOnSetState } = hookConfigs || {};
+    const useSt = storeConfigs?.useMountedState ? useMountedState : useState;
     const [componentState, setComponentState] = useSt<T>(
       Array.isArray(select)
         ? newObjWithKeys<T>(select as string[], storeState)
@@ -111,7 +113,7 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
     );
 
     const shallowCompare =
-      shallowCompareOnSetState ?? config?.shallowCompareOnSetState;
+      shallowCompareOnSetState ?? storeConfigs?.shallowCompareOnSetState;
 
     useMountEffect(() => {
       const handleStateChange = (newState: Partial<T>) => {
@@ -122,11 +124,11 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
         }
         storeState = { ...storeState, ...newState };
 
-        if (config?.useQueryParams) {
+        if (storeConfigs?.useQueryParams) {
           updateQueryParams(url, storeState, queryPrefix);
         }
 
-        if (config?.persist) {
+        if (storeConfigs?.persist) {
           myWindow.localStorage.setItem(persistKey, JSON.stringify(storeState));
         }
 
