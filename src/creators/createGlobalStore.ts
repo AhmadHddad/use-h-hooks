@@ -1,14 +1,13 @@
 import {
   EventBus,
-  deepClone,
   getWindow,
   includeKeys,
-  isNullOrUndefined,
   isObject,
-  joinObjects,
+  parseUrl,
+  stringifyUrl,
 } from 'hd-utils';
-import { useCallback, useEffect, useRef } from 'react';
-import useUpdate from '../hooks/useUpdate';
+import { useCallback, useState } from 'react';
+import { useMountEffect , useMountedState} from '..';
 
 function newObjWithKeys<T>(
   keyList: string[],
@@ -22,17 +21,28 @@ function newObjWithKeys<T>(
   return newObj as T;
 }
 
+type GlobalStoreConfig = Partial<{
+  queryPrefix: string;
+  persist: boolean;
+  url: string;
+  useMountedState:boolean;
+  useQueryParams: boolean;
+  persistKey: string;
+  shallowCompareOnSetState: boolean;
+}>;
+
 type HookOptions = {
   resetState: (all?: boolean) => void;
 };
 type HookConfigs = Partial<{
   shallowCompareOnSetState: boolean;
+  queryPrefix: string;
 }>;
 
 type HookResultOptions<T> = { comparer: (oldState: T, newState: T) => boolean };
 
 type HookResult<T> = [
-  () => T,
+  T,
   (s: Partial<T>, options?: HookResultOptions<T>) => void,
   HookOptions
 ];
@@ -41,7 +51,11 @@ const UPDATE_STATE = 'UPDATE_STATE';
 
 /**
  * @description will create a global store where state is shared among components that use the returned hook
+ * can persist data to the local storage and use query params as state
+ * @example export const useStore = createGlobalStore({a:1, b:2}, {persist:true, persistKey:"example_store"}); // localStorage.getItem("example_store"):"{a:1, b:2}"
  * @example export const useStore = createGlobalStore({a:1, b:2});
+ * @example export const useStore = createGlobalStore({a:1, b:2}, {useQueryParams:true}); //www.example.com/?h_store_a=1&h_store_b=2
+ * @example export const useStore = createGlobalStore({a:1, b:2}, {useQueryParams:true,queryPrefix:"example_"}); //www.example.com/?example_a=1&example_b=2
  * @returns hook that is used to connect the component with the store.
  * its its really recommended to specify the used store keys in the returned hook (as list of strings) to reduce the component rerendering.
  * @example const Component = () =>{
@@ -52,51 +66,71 @@ const UPDATE_STATE = 'UPDATE_STATE';
  */
 export default function createGlobalStore<T extends Record<string, unknown>>(
   initState: T = {} as T,
-  config?: { shallowCompareOnSetState?: boolean }
+  config?: GlobalStoreConfig
 ) {
   if (!isObject(initState))
     throw new Error('Error: The initial state should be of type object');
 
   const myWindow = getWindow();
+  const queryPrefix = config?.queryPrefix || 'h_store_';
+  const persistKey = config?.persistKey || 'h_store';
+  const url = config?.url || myWindow.location.href;
   const oldState = { ...initState };
-  let storeState = isNullOrUndefined(myWindow?.structuredClone)
-    ? structuredClone(initState)
-    : deepClone(initState);
+  const oldStateFromQuery = config?.useQueryParams
+    ? (getInitStateFromQuery(url, queryPrefix) as T)
+    : {};
+  const oldStateFromPersist = config?.persist
+    ? getInitStateFromPersist(persistKey)
+    : {};
+
+  let storeState = {
+    ...initState,
+    ...oldStateFromQuery,
+    ...oldStateFromPersist,
+  } as T;
 
   const storeBus = new EventBus();
 
   type Keys = keyof typeof storeState;
 
+  if (config?.useQueryParams) {
+    updateQueryParams(url, storeState, queryPrefix);
+  }
+
+  if (config?.persist) {
+    myWindow.localStorage.setItem(persistKey, JSON.stringify(storeState));
+  }
+
   function useStore(select?: Keys[], configs?: HookConfigs): HookResult<T> {
+    const useSt = config?.useMountedState ? useMountedState: useState;
     const { shallowCompareOnSetState } = configs || {};
-    const componentInitState = useRef<T>(
+    const [componentState, setComponentState] = useSt<T>(
       Array.isArray(select)
         ? newObjWithKeys<T>(select as string[], storeState)
         : storeState
     );
+
     const shallowCompare =
       shallowCompareOnSetState ?? config?.shallowCompareOnSetState;
-    const rerender = useUpdate();
 
-    useEffect(() => {
+    useMountEffect(() => {
       const handleStateChange = (newState: Partial<T>) => {
         for (const key in newState) {
-          if (
-            !Object.prototype.hasOwnProperty.call(
-              componentInitState.current,
-              key
-            )
-          ) {
+          if (!Object.prototype.hasOwnProperty.call(componentState, key)) {
             return;
           }
         }
+        storeState = { ...storeState, ...newState };
 
-        componentInitState.current = joinObjects(
-          componentInitState.current,
-          newState
-        );
-        storeState = joinObjects(storeState, newState);
-        rerender();
+        if (config?.useQueryParams) {
+          updateQueryParams(url, storeState, queryPrefix);
+        }
+
+        if (config?.persist) {
+          myWindow.localStorage.setItem(persistKey, JSON.stringify(storeState));
+        }
+
+        setComponentState(prev => ({ ...prev, ...newState }));
       };
 
       storeBus.subscribe(UPDATE_STATE, handleStateChange);
@@ -104,7 +138,7 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
       return () => {
         storeBus.unsubscribe(UPDATE_STATE, handleStateChange);
       };
-    }, [rerender]);
+    });
 
     const updateState: HookResult<T>[1] = useCallback(
       (newState, options) => {
@@ -113,22 +147,21 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
         }
 
         const isEqual =
-          options?.comparer &&
-          options.comparer(componentInitState.current, newState as T);
+          options?.comparer && options.comparer(componentState, newState as T);
 
         if (isEqual) return;
 
         if (shallowCompare) {
-          const keyList = select || Object.keys(componentInitState.current);
+          const keyList = select || Object.keys(componentState);
           keyList.forEach(key => {
-            if (componentInitState.current[key] === newState[key]) {
+            if (componentState[key] === newState[key]) {
               delete newState[key];
             }
           });
         }
         storeBus.publish(UPDATE_STATE, newState);
       },
-      [select, shallowCompare]
+      [componentState, select, shallowCompare]
     );
 
     const resetState: HookOptions['resetState'] = useCallback(
@@ -141,11 +174,7 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
       [select]
     );
 
-    return [
-      useCallback(() => componentInitState.current, []),
-      updateState,
-      { resetState },
-    ];
+    return [componentState, updateState, { resetState }];
   }
 
   useStore.setGlobalState = function(newState: Partial<T>) {
@@ -153,4 +182,57 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
   };
 
   return useStore;
+}
+
+function updateQueryParams(
+  url: string,
+  state: Record<string, unknown>,
+  queryPrefix: string
+) {
+  const updatedState: any = {};
+
+  for (const key in state) {
+    if (Object.prototype.hasOwnProperty.call(state, key)) {
+      const element = state[key];
+      updatedState[queryPrefix + key] = element;
+    }
+  }
+
+  const updatedUrl = stringifyUrl({ url: url, query: updatedState });
+  updateURL(updatedUrl);
+}
+
+function getInitStateFromQuery(url: string, queryPrefix: string) {
+  const parsedUrl = parseUrl(url);
+
+  const initQuery: any = {};
+
+  for (const key in parsedUrl.query) {
+    if (Object.prototype.hasOwnProperty.call(parsedUrl.query, key)) {
+      const element = parsedUrl.query[key];
+      let queryKey = key;
+      if (queryKey.startsWith(queryPrefix)) {
+        queryKey = key.replace(queryPrefix, '');
+      }
+
+      initQuery[queryKey] =
+        typeof element === 'string' && !Number.isNaN(Number(element))
+          ? Number(element)
+          : element;
+    }
+  }
+
+  return initQuery;
+}
+
+function getInitStateFromPersist(persistKey: string) {
+  const myWindow = getWindow();
+  const st = myWindow.localStorage.getItem(persistKey);
+  if (st) return JSON.parse(st);
+  return {};
+}
+
+function updateURL(url: string) {
+  const myWindow = getWindow();
+  myWindow.history.pushState(myWindow.history.state, '', url);
 }
