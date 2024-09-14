@@ -15,7 +15,7 @@ function newObjWithKeys<T>(
 }
 
 type SharedConfigs = Partial<{
-  shallowCompareOnSetState: string;
+  shallowCompareOnSetState: boolean;
 }>;
 
 type GlobalStoreConfig = Partial<{
