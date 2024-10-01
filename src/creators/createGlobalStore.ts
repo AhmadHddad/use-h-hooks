@@ -112,7 +112,7 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
       (newState, options) => {
         if (typeof newState === 'function') {
            const updatedState = newState(componentState);
-           if(!isObject(updatedState)) throw new Error("The return type should be object with the new state");
+           if(!isObject(updatedState)) throw new Error("Error: The return type should be object with the new state");
            
           storeBus.publish(UPDATE_STATE_EVENT, updatedState);
         } else {
