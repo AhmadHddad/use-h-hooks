@@ -111,11 +111,14 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
     const updateState: HookResult<T>[1] = useCallback(
       (newState, options) => {
         if (typeof newState === 'function') {
-          storeBus.publish(UPDATE_STATE_EVENT, newState(componentState));
+           const updatedState = newState(componentState);
+           if(!isObject(updatedState)) throw new Error("The return type should be object with the new state");
+           
+          storeBus.publish(UPDATE_STATE_EVENT, updatedState);
         } else {
           if (!isObject(newState)) {
             throw new Error(
-              'Error: The updated state should be of type object'
+              'Error: The updated state should be of type object or function'
             );
           }
 
