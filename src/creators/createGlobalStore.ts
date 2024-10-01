@@ -41,7 +41,7 @@ type HookResult<T> = [
   HookOptions
 ];
 
-const UPDATE_STATE = 'UPDATE_STATE';
+const UPDATE_STATE_EVENT = 'UPDATE_STATE';
 
 /**
  * @description will create a global store where state is shared among components that use the returned hook
@@ -101,17 +101,17 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
         setComponentState(prev => ({ ...prev, ...newState }));
       };
 
-      storeBus.subscribe(UPDATE_STATE, handleStateChange);
+      storeBus.subscribe(UPDATE_STATE_EVENT, handleStateChange);
 
       return () => {
-        storeBus.unsubscribe(UPDATE_STATE, handleStateChange);
+        storeBus.unsubscribe(UPDATE_STATE_EVENT, handleStateChange);
       };
     }, []);
 
     const updateState: HookResult<T>[1] = useCallback(
       (newState, options) => {
         if (typeof newState === 'function') {
-          storeBus.publish(UPDATE_STATE, newState(componentState));
+          storeBus.publish(UPDATE_STATE_EVENT, newState(componentState));
         } else {
           if (!isObject(newState)) {
             throw new Error(
@@ -133,7 +133,7 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
               }
             });
           }
-          storeBus.publish(UPDATE_STATE, newState);
+          storeBus.publish(UPDATE_STATE_EVENT, newState);
         }
       },
       [componentState, select, shallowCompare]
@@ -144,7 +144,7 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
         const newState =
           !all && select ? includeKeys(oldState, select as string[]) : oldState;
 
-        storeBus.publish(UPDATE_STATE, newState);
+        storeBus.publish(UPDATE_STATE_EVENT, newState);
       },
       [select]
     );
@@ -153,7 +153,7 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
   }
 
   useStore.setGlobalState = function(newState: Partial<T>) {
-    storeBus.publish(UPDATE_STATE, newState);
+    storeBus.publish(UPDATE_STATE_EVENT, newState);
   };
 
   useStore.getGlobalState = () => storeState;
