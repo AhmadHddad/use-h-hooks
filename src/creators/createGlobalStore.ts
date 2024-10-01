@@ -1,6 +1,6 @@
 import { EventBus, includeKeys, isObject } from 'hd-utils';
-import { useCallback, useState } from 'react';
-import { useMountEffect, useMountedState } from '..';
+import { useCallback, useEffect, useState } from 'react';
+import { useMountedState } from '..';
 
 function newObjWithKeys<T>(
   keyList: string[],
@@ -34,7 +34,10 @@ type HookResultOptions<T> = { comparer: (oldState: T, newState: T) => boolean };
 
 type HookResult<T> = [
   T,
-  (s: Partial<T>, options?: HookResultOptions<T>) => void,
+  (
+    s: Partial<T> | ((oldState: T) => Partial<T>),
+    options?: HookResultOptions<T>
+  ) => void,
   HookOptions
 ];
 
@@ -43,10 +46,11 @@ const UPDATE_STATE = 'UPDATE_STATE';
 /**
  * @description will create a global store where state is shared among components that use the returned hook
  * can persist data to the local storage and use query params as state
+ * @advanced You can enter the global (store scope) state using useStore.getGlobalState() or set the global state useStore.setGlobalState
  * @example export const useStore = createGlobalStore({a:1, b:2});
  * @returns hook that is used to connect the component with the store.
  * its its really recommended to specify the used store keys in the returned hook (as list of strings) to reduce the component rerendering.
- * @example const Component = () =>{
+ * @example const Component = () => {
  * const [storeState, setStoreState] = useStore(["a"]);
  *
  * return <button onClick={()=> setStoreState({a:3})}>Click me</button>
@@ -81,13 +85,17 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
     const shallowCompare =
       shallowCompareOnSetState ?? storeConfigs?.shallowCompareOnSetState;
 
-    useMountEffect(() => {
-      const handleStateChange = (newState: Partial<T>) => {
-        for (const key in newState) {
-          if (!Object.prototype.hasOwnProperty.call(componentState, key)) {
-            return;
+    useEffect(() => {
+      const handleStateChange = (updatedState: Partial<T>) => {
+        const newState: Partial<T> = {};
+
+        for (const key in updatedState) {
+          if (Object.prototype.hasOwnProperty.call(componentState, key)) {
+            newState[key] = updatedState[key];
           }
         }
+
+        if (Object.keys(newState).length === 0) return;
         storeState = { ...storeState, ...newState };
 
         setComponentState(prev => ({ ...prev, ...newState }));
@@ -98,28 +106,35 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
       return () => {
         storeBus.unsubscribe(UPDATE_STATE, handleStateChange);
       };
-    });
+    }, []);
 
     const updateState: HookResult<T>[1] = useCallback(
       (newState, options) => {
-        if (!isObject(newState)) {
-          throw new Error('Error: The updated state should be of type object');
+        if (typeof newState === 'function') {
+          storeBus.publish(UPDATE_STATE, newState(componentState));
+        } else {
+          if (!isObject(newState)) {
+            throw new Error(
+              'Error: The updated state should be of type object'
+            );
+          }
+
+          const isEqual =
+            options?.comparer &&
+            options.comparer(componentState, newState as T);
+
+          if (isEqual) return;
+
+          if (shallowCompare) {
+            const keyList = select || Object.keys(componentState);
+            keyList.forEach(key => {
+              if (componentState[key] === newState[key]) {
+                delete newState[key];
+              }
+            });
+          }
+          storeBus.publish(UPDATE_STATE, newState);
         }
-
-        const isEqual =
-          options?.comparer && options.comparer(componentState, newState as T);
-
-        if (isEqual) return;
-
-        if (shallowCompare) {
-          const keyList = select || Object.keys(componentState);
-          keyList.forEach(key => {
-            if (componentState[key] === newState[key]) {
-              delete newState[key];
-            }
-          });
-        }
-        storeBus.publish(UPDATE_STATE, newState);
       },
       [componentState, select, shallowCompare]
     );
@@ -140,6 +155,8 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
   useStore.setGlobalState = function(newState: Partial<T>) {
     storeBus.publish(UPDATE_STATE, newState);
   };
+
+  useStore.getGlobalState = () => storeState;
 
   return useStore;
 }
