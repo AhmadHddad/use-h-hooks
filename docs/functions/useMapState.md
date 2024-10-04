@@ -2,11 +2,11 @@
 
 ***
 
-[use-h-hooks](../globals.md) / useMap
+[use-h-hooks](../globals.md) / useMapState
 
-# Function: useMap()
+# Function: useMapState()
 
-> **useMap**\<`T`\>(`initialMap`): [`T`, [`Actions`](../interfaces/Actions.md)\<`T`\>]
+> **useMapState**\<`T`\>(`initialMap`): [`T`, [`Actions`](../interfaces/Actions.md)\<`T`\>]
 
 ## Type parameters
 
@@ -55,4 +55,4 @@ const Demo = () => {
 
 ## Source
 
-[src/hooks/useMap.ts:32](https://github.com/AhmadHddad/use-h-hooks/blob/daa6dd045ddcb2443f6d50fe7685055eb57611b7/src/hooks/useMap.ts#L32)
+[src/hooks/useMapState.ts:32](https://github.com/AhmadHddad/use-h-hooks/blob/1f1244a00bca3abea1e889f9fba7c9ad5d488039/src/hooks/useMapState.ts#L32)

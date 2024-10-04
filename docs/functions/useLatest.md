@@ -31,4 +31,4 @@ This is mostly useful to get access to the latest value of some props or state i
 
 ## Source
 
-[src/hooks/useLatest.ts:10](https://github.com/AhmadHddad/use-h-hooks/blob/daa6dd045ddcb2443f6d50fe7685055eb57611b7/src/hooks/useLatest.ts#L10)
+[src/hooks/useLatest.ts:10](https://github.com/AhmadHddad/use-h-hooks/blob/1f1244a00bca3abea1e889f9fba7c9ad5d488039/src/hooks/useLatest.ts#L10)
