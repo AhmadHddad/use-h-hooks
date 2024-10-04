@@ -41,12 +41,10 @@ type HookResult<T> = [
   HookOptions
 ];
 
-type Param<T> = { updatedState: Partial<T>; componentState: T };
-
 const UPDATE_STATE_EVENT = 'UPDATE_STATE';
 
 /**
- * @description will create a global store where state is shared among components that use the returned hook
+ * @description Will create a global store where state is shared among components that use the returned hook
  * can persist data to the local storage and use query params as state
  * @advanced You can enter the global (store scope) state using useStore.getGlobalState() or set the global state useStore.setGlobalState
  * @example export const useStore = createGlobalStore({a:1, b:2});
@@ -88,12 +86,12 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
       shallowCompareOnSetState ?? storeConfigs?.shallowCompareOnSetState;
 
     useEffect(() => {
-      const handleStateChange = (param: Param<T>) => {
+      const handleStateChange = (updatedState: T) => {
         const newState: Partial<T> = {};
 
-        for (const key in param.updatedState) {
-          if (Object.prototype.hasOwnProperty.call(param.componentState, key)) {
-            newState[key] = param.updatedState[key];
+        for (const key in updatedState) {
+          if (Object.prototype.hasOwnProperty.call(componentState, key)) {
+            newState[key] = updatedState[key];
           }
         }
 
@@ -112,16 +110,14 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
 
     const updateState: HookResult<T>[1] = useCallback(
       (newState, options) => {
-        const data: Param<T> = { componentState, updatedState: {} };
-
         if (typeof newState === 'function') {
           const updatedState = newState(componentState);
           if (!isObject(updatedState))
             throw new Error(
               'Error: The return type should be object with the new state'
             );
-          data.updatedState = updatedState;
-          storeBus.publish(UPDATE_STATE_EVENT, data);
+
+          storeBus.publish(UPDATE_STATE_EVENT, updatedState);
         } else {
           if (!isObject(newState)) {
             throw new Error(
@@ -144,9 +140,7 @@ export default function createGlobalStore<T extends Record<string, unknown>>(
             });
           }
 
-          data.updatedState = newState;
-
-          storeBus.publish(UPDATE_STATE_EVENT, data);
+          storeBus.publish(UPDATE_STATE_EVENT, newState);
         }
       },
       [componentState, select, shallowCompare]
