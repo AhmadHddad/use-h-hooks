@@ -17,7 +17,7 @@ export default function useObjectState<S extends Record<string, any>>(
     //@ts-ignore
     (newState: SetStateAction<S> = S | ((prevState: S) => S)) => {
       if (typeof newState === 'function') {
-        setState(newState);
+        setState(prev => ({ ...prev, ...newState(prev) }));
       } else if (typeof newState === 'object') {
         setState(prev => ({ ...prev, ...newState }));
       }
